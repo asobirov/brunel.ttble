@@ -20,17 +20,6 @@ import { Pages } from './types/pages';
         });
         await page.setRequestInterception(true)
 
-        page.on('request', async (request) => {
-            if (request.url().startsWith("https://axis.navitas.com/apps/timetable/timetable")) {
-                console.log(request.headers());
-                await request.continue();
-                return;
-            }
-            (request.resourceType() === 'image' || request.resourceType() === "stylesheet")
-                ? await request.abort()
-                : await request.continue()
-        })
-
         await page.goto(Pages.home, {
             waitUntil: 'networkidle2',
         });
