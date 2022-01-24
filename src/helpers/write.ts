@@ -3,7 +3,8 @@ import { Course } from "../types/course";
 
 export const writeTtble = async (data: Course[]) => {
     const json = JSON.stringify(data, null, 2);
-
+    
+    console.log(json);
     console.log('Starting to write to file...');
 
     const fd = fs.openSync(__dirname + '/../../data/ttble.json', 'w');

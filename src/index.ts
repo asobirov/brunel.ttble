@@ -1,8 +1,6 @@
-import axios from 'axios';
 import 'dotenv/config';
 import puppeteer from 'puppeteer';
 
-import { auth, sleep } from './helpers';
 import { getTimetable } from './helpers/timetable';
 import { Pages } from './types/pages';
 
@@ -18,10 +16,9 @@ import { Pages } from './types/pages';
             height: 800,
             deviceScaleFactor: 1,
         });
-        await page.setRequestInterception(true)
 
         await page.goto(Pages.home, {
-            waitUntil: 'networkidle2',
+            waitUntil: 'networkidle2'
         });
 
         await getTimetable({ page });

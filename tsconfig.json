@@ -1,29 +1,16 @@
 {
   "compilerOptions": {
-    "incremental": true,
     "target": "esnext",
     "module": "commonjs",
-    "rootDir": "./src",
+    "allowJs": true,
+    "rootDir": "src",
     "outDir": "./dist",
+    "baseUrl": ".",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noEmit": true,
     "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitThis": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "sourceMap": true
-  },
-  "include": [
-    "**/*.ts",
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "skipLibCheck": true
+  }
 }
