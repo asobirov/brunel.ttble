@@ -21,13 +21,8 @@ import { Pages } from './types/pages';
         });
         console.log('Browser launched.');
 
-        console.log('Creating page...');
+        console.log('Creating a page...');
         const page = (await browser.pages())[0];
-        await page.setViewport({
-            width: 1280,
-            height: 800,
-            deviceScaleFactor: 1,
-        });
         console.log('Page created.');
 
         await page.goto(Pages.home, {
