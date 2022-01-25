@@ -41,7 +41,7 @@ export const getTimetable = async (options: { page: Page, start?: number, end?: 
     } catch (error: any) {
         throw {
             message: 'Could not get timetable.',
-            reason: error && error.message,
+            reason: error,
         }
     }
 }

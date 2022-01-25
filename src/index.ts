@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 
 import { getTimetable } from './helpers/timetable';
 import { Pages } from './types/pages';
@@ -7,7 +7,7 @@ import { Pages } from './types/pages';
 (async () => {
     try {
         console.log('Launching browser...');
-        const browser = await puppeteer.launch({
+        var browser: Browser | undefined = await puppeteer.launch({
             headless: process.env.CI === "true",
             executablePath: '/usr/bin/chromium-browser'
         });
@@ -30,5 +30,8 @@ import { Pages } from './types/pages';
         await browser.close();
     } catch (e) {
         console.error(e);
+        if (browser) {
+            await browser.close();
+        }
     }
 })();
