@@ -6,11 +6,14 @@ import { Pages } from './types/pages';
 
 (async () => {
     try {
+        console.log('Launching browser...');
         const browser = await puppeteer.launch({
             headless: process.env.CI === "true",
             executablePath: '/usr/bin/chromium-browser'
         });
 
+
+        console.log('Creating page...');
         const page = await browser.newPage();
         await page.setViewport({
             width: 1280,
