@@ -19,6 +19,10 @@ export const auth = async (options: { page: Page, min?: number, max?: number }) 
         const passwordInput = await page.$x(`//input[@name='password']`);
         const loginButton = await page.$x(`//input[@type='submit']`);
 
+        if (!SAMLToken || !usernameInput || !passwordInput || !loginButton) {
+            throw 'Could not find login form.';
+        }
+
         const username = process.env.USERNAME;
         const password = process.env.PASSWORD;
 
