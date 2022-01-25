@@ -7,7 +7,8 @@ import { Pages } from './types/pages';
 (async () => {
     try {
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: process.env.CI === "true",
+            executablePath: '/usr/bin/chromium-browser'
         });
 
         const page = await browser.newPage();
