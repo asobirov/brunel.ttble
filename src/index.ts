@@ -15,9 +15,9 @@ import { Pages } from './types/pages';
 
         console.log('Launching browser...');
         var browser: Browser | undefined = await puppeteer.launch({
-            headless: true,
+            // headless: true,
             executablePath: '/usr/bin/chromium-browser',
-            args: ['--proxy-server=http://10.10.10.10:8080']
+            // args: ['--proxy-server=http://10.10.10.10:8080']
         });
         console.log('Browser launched.');
 
