@@ -1,20 +1,28 @@
 import 'dotenv/config';
-import puppeteer, { Browser } from 'puppeteer';
+
+import puppeteer from 'puppeteer-extra';
+import { Browser } from 'puppeteer';
 
 import { getTimetable } from './helpers/timetable';
 import { Pages } from './types/pages';
 
 (async () => {
     try {
-        console.log('Launching browser...');
+
+        console.log("Setting up stealth plugin.");
+        const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+        puppeteer.use(StealthPlugin());
+
+        console.log('Launching browser.');
         var browser: Browser | undefined = await puppeteer.launch({
-            headless: process.env.CI === "true",
-            executablePath: '/usr/bin/chromium-browser'
+            headless: true,
+            executablePath: '/usr/bin/chromium-browser',
+            args: ['--proxy-server=http://10.10.10.10:8080']
         });
 
 
         console.log('Creating page...');
-        const page = await browser.newPage();
+        const page = (await browser.pages())[0];
         await page.setViewport({
             width: 1280,
             height: 800,
