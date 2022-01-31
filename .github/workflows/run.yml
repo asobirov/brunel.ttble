@@ -1,0 +1,41 @@
+name: Run parser
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setting up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Running timetable parser
+        run: yarn start
+
+      - name: Pushing new changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          [[ -z $(git status -uno --porcelain) ]] && echo "No updates detected, no need for push" && exit 0;
+          git commit -m "Updated timetable"
+          git push origin main --force
