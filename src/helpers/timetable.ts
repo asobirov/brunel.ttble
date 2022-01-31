@@ -1,47 +1,53 @@
 import { Page } from "puppeteer";
-import axios from "axios";
 import { Pages } from "../types/pages";
 import { auth, sleep } from ".";
-import { Course } from "../types/course";
 import { writeTtble } from "./write";
+import { log } from "./log";
+import { LogType } from "../types/log";
 
 export const getTimetable = async (options: { page: Page, start?: number, end?: number }) => {
     try {
+        log('Starting to parse timetable...', LogType.blockStart);
         const { page } = options;
-        let { start, end } = options;
 
         await auth({ page });
         await sleep({ page });
 
-        await page.goto(Pages.timetable, {
-            waitUntil: 'networkidle2',
-        });
+        await page.goto(Pages.timetable);
 
-        const startDate = start ? new Date(start) : new Date(new Date().getTime() - (24 * 60 * 60 * 1000));
-        startDate.setUTCHours(0, 0, 0, 0);
-        start = startDate.getTime();
-        console.log(new Date(start).toLocaleString());
 
-        end = end ? new Date(end).getTime() : start + (2 * 30 * 24 * 60 * 60 * 1000);
+        await writeTtble(await (await getTtbleRes({ page })).ttbleRes.json());
+        await sleep({ page });
 
-        console.log(`Getting timetable from ${new Date(start).toDateString()} to ${new Date(end).toDateString()}`);
+        log('Switching to the next month...', LogType.start);
+        const nextWeekButton = (await page.$x('//span[contains(@class,"fc-button fc-button-next fc-state-default fc-corner-right")]'))[0];
+        await nextWeekButton.click();
 
-        const ttbleCookies = await page.cookies();
-        const ttbleRes = await axios.get(`${Pages.timetable}/timetable?start=${start}&end=${end}`, {
-            headers: {
-                Cookie: ttbleCookies.map(c => `${c.name}=${c.value}`).join('; '),
-                Accept: "application/json, text/javascript, */*; q=0.01",
-                'x-requested-with': 'XMLHttpRequest',
-            },
-            withCredentials: true,
-        });
+        await writeTtble(await (await getTtbleRes({ page })).ttbleRes.json());
 
-        await writeTtble(ttbleRes.data);
-        console.log('Finished parsing timetable.');
+        log('Finished parsing timetable.', LogType.blockEnd);
     } catch (error: any) {
         throw {
             message: 'Could not get timetable.',
             reason: error,
         }
+    }
+}
+
+export const getTtbleRes = async (options: { page: Page }) => {
+    const { page } = options;
+    const ttbleRes = await page.waitForResponse(res => res.url().startsWith('https://axis.navitas.com/apps/timetable/timetable') && res.status() === 200);
+
+    const [_, date] = ttbleRes.url().split('?');
+    const [startDate, endDate] = date.split('&');
+    const start = new Date(+startDate.split('=')[1] * 1000);
+    const end = new Date(+endDate.split('=')[1] * 1000);
+
+    console.log(`> Fetched timetable for ${start.toLocaleString()} to ${end.toLocaleString()}`);
+
+    return {
+        ttbleRes,
+        start,
+        end,
     }
 }

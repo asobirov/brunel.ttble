@@ -1,6 +1,8 @@
 import { Page } from "puppeteer"
+import { LogType } from "../types/log";
 import { sleep } from ".";
 import { Pages } from "../types/pages";
+import { log } from "./log";
 
 export const auth = async (options: { page: Page, min?: number, max?: number }) => {
     try {
@@ -8,12 +10,12 @@ export const auth = async (options: { page: Page, min?: number, max?: number }) 
 
         await sleep({ page, min, max });
 
-        console.warn("Checking if logged in...");
+        log("Checking if logged in...", LogType.blockStart);
         if (!page.url().startsWith(Pages.login)) {
-            console.log('Yeap, already logged in.');
+            log('Yeap, already logged in.', LogType.blockEnd);
             return;
         }
-        console.log("Not logged in, logging in...");
+        log("Not logged in, logging in...", LogType.end);
         const SAMLToken = await page.$x('//input[@name="SAMLRequest"]');
         const usernameInput = await page.$x(`//input[@name='username']`);
         const passwordInput = await page.$x(`//input[@name='password']`);
@@ -35,7 +37,7 @@ export const auth = async (options: { page: Page, min?: number, max?: number }) 
 
         loginButton.length > 0 && await loginButton[0].click();
 
-        console.log("Logged in successfully.");
+        log("Logged in successfully.", LogType.blockEnd);
         return { SAMLToken };
     } catch (error: any) {
         throw {

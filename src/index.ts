@@ -5,34 +5,38 @@ import { Browser } from 'puppeteer';
 
 import { getTimetable } from './helpers/timetable';
 import { Pages } from './types/pages';
+import { log } from './helpers/log';
+import { LogType } from './types/log';
 
 (async () => {
     try {
 
-        console.log("Setting up stealth plugin.");
+        log("Setting up stealth plugin.", LogType.start);
         const StealthPlugin = require('puppeteer-extra-plugin-stealth');
         puppeteer.use(StealthPlugin());
+        log("Finished setting up stealth plugin.", LogType.end);
 
-        console.log('Launching browser...');
+        log('Launching browser...', LogType.start);
         var browser: Browser | undefined = await puppeteer.launch({
-            // headless: true,
-            executablePath: '/usr/bin/chromium-browser',
+            headless: true,
+            // executablePath: '/usr/bin/chromium-browser',
+            // devtools: true
             // args: ['--proxy-server=http://10.10.10.10:8080']
         });
-        console.log('Browser launched.');
+        log('Browser launched.', LogType.end);
 
-        console.log('Creating a page...');
+        log('Creating initial page...', LogType.start);
         const page = (await browser.pages())[0];
-        console.log('Page created.');
+        log('Page created successfully.', LogType.end);
 
         await page.goto(Pages.home, {
             waitUntil: 'networkidle2'
         });
 
-        console.log('Fetching timetable...');
         await getTimetable({ page });
 
         await browser.close();
+        log('Browser closed.', LogType.blockEnd);
     } catch (e) {
         console.error(e);
         if (browser) {
