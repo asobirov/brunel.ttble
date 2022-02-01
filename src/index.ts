@@ -18,7 +18,7 @@ import { LogType } from './types/log';
 
         log('Launching browser...', LogType.start);
         var browser: Browser | undefined = await puppeteer.launch({
-            headless: true,
+            headless: false,
             // executablePath: '/usr/bin/chromium-browser',
             // devtools: true
             // args: ['--proxy-server=http://10.10.10.10:8080']
@@ -29,9 +29,11 @@ import { LogType } from './types/log';
         const page = (await browser.pages())[0];
         log('Page created successfully.', LogType.end);
 
+        log('Navigating to home page...', LogType.start);
         await page.goto(Pages.home, {
             waitUntil: 'networkidle2'
         });
+        log('Navigated to home page.', LogType.end);
 
         await getTimetable({ page });
 

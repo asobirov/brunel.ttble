@@ -25,6 +25,8 @@ export const auth = async (options: { page: Page, min?: number, max?: number }) 
             throw 'Could not find login form.';
         }
 
+        log("Found all login form elements.", LogType.end);
+
         const username = process.env.USERNAME;
         const password = process.env.PASSWORD;
 
@@ -42,7 +44,7 @@ export const auth = async (options: { page: Page, min?: number, max?: number }) 
     } catch (error: any) {
         throw {
             message: 'Could not log in.',
-            reason: error && error.message,
+            reason: error.message || error,
         }
     }
 }

@@ -15,7 +15,6 @@ export const getTimetable = async (options: { page: Page, start?: number, end?: 
 
         await page.goto(Pages.timetable);
 
-
         await writeTtble(await (await getTtbleRes({ page })).ttbleRes.json());
         await sleep({ page });
 
@@ -23,7 +22,7 @@ export const getTimetable = async (options: { page: Page, start?: number, end?: 
         const nextWeekButton = (await page.$x('//span[contains(@class,"fc-button fc-button-next fc-state-default fc-corner-right")]'))[0];
         await nextWeekButton.click();
 
-        await writeTtble(await (await getTtbleRes({ page })).ttbleRes.json());
+        await writeTtble(await (await getTtbleRes({ page })).ttbleData);
 
         log('Finished parsing timetable.', LogType.blockEnd);
     } catch (error: any) {
@@ -37,16 +36,18 @@ export const getTimetable = async (options: { page: Page, start?: number, end?: 
 export const getTtbleRes = async (options: { page: Page }) => {
     const { page } = options;
     const ttbleRes = await page.waitForResponse(res => res.url().startsWith('https://axis.navitas.com/apps/timetable/timetable') && res.status() === 200);
+    const ttbleData = await ttbleRes.json();
 
     const [_, date] = ttbleRes.url().split('?');
     const [startDate, endDate] = date.split('&');
     const start = new Date(+startDate.split('=')[1] * 1000);
     const end = new Date(+endDate.split('=')[1] * 1000);
 
-    console.log(`> Fetched timetable for ${start.toLocaleString()} to ${end.toLocaleString()}`);
+    console.log(`> Fetched ${(ttbleRes && ttbleData.lenght) || 'empty'} timetable for ${start.toLocaleString()} to ${end.toLocaleString()}`);
 
     return {
         ttbleRes,
+        ttbleData,
         start,
         end,
     }
