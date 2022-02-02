@@ -33,3 +33,8 @@ export const writeTtble = async (data: Course[]) => {
     fs.closeSync(fd);
     log('Finished saving timetable.', LogType.end);
 }
+
+
+export const writeCourses = async (data: any) => {
+
+}

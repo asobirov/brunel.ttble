@@ -1,17 +1,15 @@
 import { Page } from "puppeteer";
 import { Pages } from "../types/pages";
-import { auth, sleep } from ".";
-import { writeTtble } from "./write";
-import { log } from "./log";
+import { auth, sleep } from "../helpers";
+import { writeTtble } from "../helpers/write";
+import { log } from "../helpers/log";
 import { LogType } from "../types/log";
+import { goto } from "../helpers/goto";
 
-export const getTimetable = async (options: { page: Page, start?: number, end?: number }) => {
+export const getTimetable = async (options: { page: Page }) => {
     try {
         log('Starting to parse timetable...', LogType.blockStart);
         const { page } = options;
-
-        await auth({ page });
-        await sleep({ page });
 
         await page.goto(Pages.timetable);
 
@@ -35,8 +33,11 @@ export const getTimetable = async (options: { page: Page, start?: number, end?: 
 
 export const getTtbleRes = async (options: { page: Page }) => {
     const { page } = options;
+
+    log('Waiting for timetable response...', LogType.start);
     const ttbleRes = await page.waitForResponse(res => res.url().startsWith('https://axis.navitas.com/apps/timetable/timetable') && res.status() === 200);
     const ttbleData = await ttbleRes.json();
+    log('Fetched timetable response.', LogType.end);
 
     const [_, date] = ttbleRes.url().split('?');
     const [startDate, endDate] = date.split('&');

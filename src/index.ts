@@ -3,10 +3,12 @@ import 'dotenv/config';
 import puppeteer from 'puppeteer-extra';
 import { Browser } from 'puppeteer';
 
-import { getTimetable } from './helpers/timetable';
+import { getTimetable } from './funcs/timetable';
 import { Pages } from './types/pages';
 import { log } from './helpers/log';
 import { LogType } from './types/log';
+import { getCourses } from './funcs/courses';
+import { goto } from './helpers/goto';
 
 (async () => {
     try {
@@ -29,13 +31,11 @@ import { LogType } from './types/log';
         const page = (await browser.pages())[0];
         log('Page created successfully.', LogType.end);
 
-        log('Navigating to home page...', LogType.start);
-        await page.goto(Pages.home, {
-            waitUntil: 'networkidle2'
-        });
-        log('Navigated to home page.', LogType.end);
+        await goto({ page, href: Pages.home, waitUntil: 'networkidle2' });
 
         await getTimetable({ page });
+
+        await getCourses({ page });
 
         await browser.close();
         log('Browser closed.', LogType.blockEnd);
