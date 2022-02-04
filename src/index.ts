@@ -21,7 +21,7 @@ import { goto } from './helpers/goto';
         log('Launching browser...', LogType.start);
         var browser: Browser | undefined = await puppeteer.launch({
             headless: false,
-            // executablePath: '/usr/bin/chromium-browser',
+            executablePath: '/usr/bin/chromium-browser',
             // devtools: true
             // args: ['--proxy-server=http://10.10.10.10:8080']
         });
