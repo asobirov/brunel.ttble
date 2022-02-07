@@ -20,8 +20,9 @@ import { goto } from './helpers/goto';
 
         log('Launching browser...', LogType.start);
         var browser: Browser | undefined = await puppeteer.launch({
-            headless: false,
+            headless: true,
             executablePath: '/usr/bin/chromium-browser',
+            args: ['--use-gl=egl'],
             // devtools: true
             // args: ['--proxy-server=http://10.10.10.10:8080']
         });
@@ -35,7 +36,7 @@ import { goto } from './helpers/goto';
 
         await getTimetable({ page });
 
-        await getCourses({ page });
+        // await getCourses({ page });
 
         await browser.close();
         log('Browser closed.', LogType.blockEnd);
