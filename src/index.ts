@@ -41,7 +41,7 @@ import { goto } from './helpers/goto';
         await browser.close();
         log('Browser closed.', LogType.blockEnd);
     } catch (e) {
-        console.error(e);
+        console.log('* ERROR:', e, '*')
         if (browser) {
             await browser.close();
         }
