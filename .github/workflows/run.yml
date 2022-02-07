@@ -27,8 +27,8 @@ jobs:
       - name: Setting up .env
         run: |
           touch .env
-          echo USERNAME=${{ secrets.USERNAME } >> .env
-          echo PASSWORD=${{ secrets.PASSWORD } >> .env
+          echo USERNAME=${{ secrets.USERNAME }} >> .env
+          echo PASSWORD=${{ secrets.PASSWORD }} >> .env
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
