@@ -7,8 +7,12 @@ on:
     branches:
       - master
 
+env:
+  USERNAME: ${{ secrets.USERNAME }}
+  PASSWORD: ${{ secrets.PASSWORD }}
+
 jobs:
-  build:
+  build-and-run-parser:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +27,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser
+
+      - name: Setting up .env
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
 
       - name: Install dependencies
         run: yarn --frozen-lockfile
