@@ -44,7 +44,7 @@ export const getTtbleRes = async (options: { page: Page }) => {
     const start = new Date(+startDate.split('=')[1] * 1000);
     const end = new Date(+endDate.split('=')[1] * 1000);
 
-    console.log(`> Fetched ${(ttbleData && ttbleData.lenght > 0) || 'empty'} timetable for ${start.toLocaleString()} to ${end.toLocaleString()}`);
+    console.log(`> Fetched ${(ttbleData && ttbleData.lenght <= 0) ? 'empty ' : ""}timetable for ${start.toLocaleString()} to ${end.toLocaleString()}`);
 
     return {
         ttbleRes,
