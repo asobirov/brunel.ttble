@@ -22,17 +22,16 @@ export const writeTtble = async (data: Course[]) => {
     if (existingData) {
         log('Found existing timetable data. Merging...', LogType.start);
         const existingDataJSON = JSON.parse(existingData)
-        let filteredData: Course[] = [...data];
+        let mergedData: Course[] = [...existingDataJSON];
 
-        existingDataJSON.forEach((c: Course) => {
-            if (data.find(d => d.start === c.start)) {
+        data.forEach((c: Course) => {
+            if (existingDataJSON.find((eC: Course) => eC.start === c.start)) {
                 console.log('Found existing course with the same start time.');
                 return;
             }
-            filteredData.push(c);
+            mergedData.push(c);
         });
 
-        const mergedData = [...filteredData, ...data];
         fs.writeFileSync(__dirname + '/../../data/ttble.json', JSON.stringify(mergedData, null, 2));
     } else {
         fs.writeFileSync(__dirname + '/../../data/ttble.json', json);
