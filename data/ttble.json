@@ -1428,5 +1428,18 @@
     "bookingName": "",
     "isOnline": false,
     "onlineBookingWarning": false
+  },
+  {
+    "title": "NC1603B L #6\nAfees Odebode\nONLINE",
+    "room": "ONLINE",
+    "start": "2022-04-11T14:00:00Z",
+    "end": "2022-04-11T16:00:00Z",
+    "backgroundColor": "#EE9899",
+    "textColor": "#000000",
+    "borderColor": "#3A87AD",
+    "allDay": false,
+    "bookingName": "",
+    "isOnline": false,
+    "onlineBookingWarning": false
   }
 ]
