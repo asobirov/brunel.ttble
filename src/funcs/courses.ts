@@ -1,9 +1,9 @@
 import { Page } from "puppeteer";
+
 import { Pages } from "../types/pages";
-import { auth, sleep } from "../helpers";
-import { log } from "../helpers/log";
 import { LogType } from "../types/log";
-import { goto } from "../helpers/goto";
+
+import { sleep, goto, log, handleModal, writeCourses } from "../helpers";
 
 export const getCourses = async (options: { page: Page, start?: number, end?: number }) => {
     try {
@@ -12,9 +12,11 @@ export const getCourses = async (options: { page: Page, start?: number, end?: nu
 
         await goto({ page, href: Pages.moodleMain, waitUntil: 'networkidle0' });
 
-        const courseIds = (await getCourseIds({ page }));
-        const courses = await getCoursesData({ page, courseIds });
-        await sleep({ page });
+        await writeCourses(await getCoursesData({
+            page,
+            courseIds: await getCourseIds({ page })
+        }));
+
 
         log('Finished parsing timetable.', LogType.blockEnd);
     } catch (error: any) {
@@ -50,44 +52,89 @@ const getCoursesData = async (options: { page: Page, courseIds: string[] }) => {
 
     log('Parsing courses data...', LogType.blockStart);
 
-    const coursesData: any[] = []
+    const coursesData: any[] = [];
+
     for (const courseId of courseIds) {
         coursesData.push(await getCourseDataById({ page, courseId }));
     }
 
-    return {
-        coursesData
-    }
+    log('Finished parsing courses data.', LogType.blockEnd);
+    return coursesData;
 
 }
 
 const getCourseDataById = async (options: { page: Page, courseId: string }) => {
     const { page, courseId } = options;
 
-    log(`Getting course (id: ${courseId}) data...`, LogType.blockStart);
+    try {
+        await sleep({ page });
 
-    await goto({ page, href: `${Pages.course}${courseId}`, waitUntil: 'networkidle0' });
+        log(`Parsing course [${courseId}] data...`, LogType.blockStart);
+        await goto({ page, href: `${Pages.course}${courseId}`, waitUntil: 'networkidle0' });
 
-    const tiles = await page.$x("//ul[@class='tiles']/li[contains(@class, 'tile') and not(contains(@class, 'spacer'))]");
+        await handleModal({ page });
 
-    log('Pressing to course tiles...', LogType.start);
-    for (let i = 0; i < tiles.length; i += 2) {
-        await tiles[i].click();
+        const tiles = await page.$x("//ul[@class='tiles']/li[contains(@class, 'tile') and not(contains(@class, 'spacer'))]");
+
+        log('Opening every second course tile...', LogType.start);
+        for (let i = 0; i < tiles.length; i += 2) {
+            await sleep({ page, min: 1000, max: 2000 });
+            await tiles[i].click();
+        }
+        log('Finished opening course tiles.', LogType.end);
+
+        log('Parsing course sections...', LogType.start);
+
+        const sections = await page.$x("//ul[@class='tiles']/li[contains(@class, 'section')]/div[contains(@class, 'content')]");
+
+        const sectionsData = [];
+        const zoomUrls: string[] = [];
+        for (const section of sections) {
+            // get text of span with class 'sectionname that is located inside sectionInner
+            const sectionTitle = (await section.$$eval("div.pagesechead .sectiontitle > h2", el => el.map(e => e.textContent)))[0]?.trim() ?? '';
+
+
+            if (sectionTitle.toLowerCase().includes('zoom')) {
+                // check if any li data-title contains 'Group 6'
+                // return .section > .activity elements 
+                const moodleZoomLinkIds = (await section.$$eval(".section > .activity", (els) =>
+                    els.filter((e) =>
+                        e.getAttribute('data-title')?.includes('Group 6') ?? false
+                    ).map((e) => e.getAttribute('data-cmid'))
+                )).filter(<T>(v: T | null | undefined): v is T => v !== null && v !== undefined);
+
+                log(`Fetched zoom link ids for ${courseId}: ${JSON.stringify(moodleZoomLinkIds)}`, LogType.start);
+                for (const id of moodleZoomLinkIds) {
+                    zoomUrls.push(await getZoomLinkById({ page, moodleId: id }));
+                }
+            }
+
+            sectionsData.push({
+                title: sectionTitle,
+            });
+        }
+
+        log(`Finished parsing course (id: ${courseId}) data.`, LogType.blockEnd);
+
+        return {
+            id: courseId,
+            zoomUrls: zoomUrls,
+            sections: sectionsData
+        }
+    } catch (error: any) {
+        throw {
+            message: `Could not get course ${courseId} data.`,
+            reason: error,
+        }
     }
-    log('Finished pressing to course tiles.', LogType.end);
+}
 
-    log('Parsing course sections...', LogType.start);
+const getZoomLinkById = async (options: { page: Page, moodleId: string }) => {
+    const { page, moodleId } = options;
+    await goto({ page, href: `${Pages.zoom}${moodleId}` });
+    await (await page.$$("form[action='https://moodle.libt.navitas.com/mod/ncmzoom/loadmeeting.php'] > button[type='submit']"))[0].click();
+    await sleep({ page, min: 1000, max: 2000 });
+    console.log(page.url())
+    return page.url();
 
-    const sections = await page.$x("//ul[@class='tiles']/li[contains(@class, 'section')]/div[contains(@class, 'content')]");
-    let sectionsData = [];//*[@id="page-course-view-tiles"]/div[6]/div[2]/div/div/div[3]/button[1]
-
-    for (const section of sections) {
-        const name = await (await (await section.$x("//span[contains(@class, 'sectionname')]"))[0].getProperty('textContent'))._remoteObject.value;
-        console.log("Section NAME: " + name);
-    }
-
-    log(`Finished parsing course (id: ${courseId}) data.`, LogType.blockEnd);
-
-    return {
-    }
 }

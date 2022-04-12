@@ -42,5 +42,5 @@ export const writeTtble = async (data: Course[]) => {
 
 
 export const writeCourses = async (data: any) => {
-
+    // console.log(JSON.stringify(data))
 }

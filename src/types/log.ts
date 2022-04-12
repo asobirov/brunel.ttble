@@ -3,4 +3,5 @@ export enum LogType {
     end = 'end',
     blockStart = 'blockStart',
     blockEnd = 'blockEnd',
+    error = 'error',
 }
