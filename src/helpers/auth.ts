@@ -16,6 +16,7 @@ export const auth = async (options: { page: Page, min?: number, max?: number }) 
             return;
         }
         log("Not logged in, logging in...", LogType.end);
+
         const SAMLToken = await page.$x('//input[@name="SAMLRequest"]');
         const usernameInput = await page.$x(`//input[@name='username']`);
         const passwordInput = await page.$x(`//input[@name='password']`);

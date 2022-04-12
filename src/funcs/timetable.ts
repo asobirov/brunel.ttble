@@ -1,10 +1,9 @@
 import { Page } from "puppeteer";
+
 import { Pages } from "../types/pages";
-import { auth, sleep } from "../helpers";
-import { writeTtble } from "../helpers/write";
-import { log } from "../helpers/log";
 import { LogType } from "../types/log";
-import { goto } from "../helpers/goto";
+
+import { sleep, writeTtble, log } from "../helpers";
 
 export const getTimetable = async (options: { page: Page }) => {
     try {

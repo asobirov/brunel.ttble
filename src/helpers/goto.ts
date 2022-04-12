@@ -14,5 +14,10 @@ export const goto = async (option: { page: Page, href: string, waitUntil?: Puppe
 
     await auth({ page, min: 2500 });
     await sleep({ page });
-    log('Successfully navigated to ' + href, LogType.blockEnd);
+
+    if (page.url().startsWith(href)) {
+        log('Successfully navigated to ' + href, LogType.blockEnd);
+    } else {
+        log('Could not navigate to ' + href + '(Unmatched urls)', LogType.error);
+    }
 }
